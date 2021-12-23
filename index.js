@@ -2,18 +2,18 @@ import * as THREE from 'three';
 import metaversefile from 'metaversefile';
 import TwilightSkyShader from './shaders/TwilightSkyShader.js';
 
-const { useApp, useFrame } = metaversefile;
+const { useApp, useFrame, useLocalPlayer } = metaversefile;
 
 const baseUrl = import.meta.url.replace(/(\/)[^\/\/]*$/, '$1');
 
 export default () => {
 
     const app = useApp();
-
+    const localPlayer = useLocalPlayer();
     const skyColors = { color1: new THREE.Color(0x0d1a2f), color2: new THREE.Color(0x0d1a2f) };
-    const glowColors = { color1: new THREE.Color(0xFF0000), color2: new THREE.Color(0x0000ff) };
+    const glowColors = { color1: new THREE.Color(0x2d77ab), color2: new THREE.Color(0x0000ff) };
 
-    let skydomeRadius = 50;
+    let skydomeRadius = 200;
 
     let twilightSkyShaderMaterial = new THREE.ShaderMaterial({
         uniforms: {
@@ -34,18 +34,22 @@ export default () => {
         fog: false
         // side: THREE.BackSide,
     })
+    
 
-    const skyDome = new THREE.Mesh(new THREE.SphereBufferGeometry( 300 )
+    const skyDome = new THREE.Mesh(new THREE.SphereBufferGeometry( 750 )
         .applyMatrix4(
             new THREE.Matrix4()
                 .makeScale(-1, 1, 1)
         ), twilightSkyShaderMaterial);
     app.add(skyDome);
 
+    skyDome.position.copy( localPlayer.position );
+
     useFrame(({ timestamp }) => {
         // animate sky rotation
         // make stars twinkle etc
-        skyDome.rotation.y -= 0.0001;
+        skyDome.position.copy( localPlayer.position );
+        skyDome.rotation.y -= 0.0002;
         skyDome.updateMatrixWorld();
     });
 
